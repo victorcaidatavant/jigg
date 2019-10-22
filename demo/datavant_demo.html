@@ -16,8 +16,8 @@
     <br>
     <button id="button" onclick="start()">Compute</button>
     <br>
-    <!-- <div id="progress" style="font-family: sans-serif;">X</div> -->
-    <div id="results" style="font-family: sans-serif;"></div>
+    <div id="progress" style="font-family: sans-serif; margin-top: 0.25em;"></div>
+    <div id="results" style="font-family: sans-serif; margin-top: 0.25em;"></div>
   </body>
   <script type="text/javascript">
     const countbits = function () {
@@ -37,16 +37,13 @@
     };
     const start = function () {
       var input = $('#input').val();
-      const circuitURL = 'circuits/sha256.txt';
-
-      const base = $('#base').val();
-      if (base === 'hex') {
-        input = jigg.hex2bin(input);
-      }
+      input = jigg.hex2bin(input);
       input = input.split('');
-      if (circuitURL === "circuits/aes128.txt") {  // temporarily adjust circuit
-        input = input.reverse();
-      }
+
+      const circuitURL = 'circuits/sha256.txt';
+      // if (circuitURL === "circuits/aes128.txt") {  // temporarily adjust circuit
+      //   input = input.reverse();
+      // }
       input = input.map(JSON.parse);
 
       // run evaluator
