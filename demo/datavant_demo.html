@@ -1,0 +1,57 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Garbled Circuit JS 2PC</title>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script src="dist/sodium.js"></script>
+    <script src="dist/jigg.js"></script>
+  </head>
+  <body style="font-family: sans-serif; margin: 2em;">
+    <h1 style="margin-bottom: 0.25em;">Garbled Circuits in JavaScript</h1>
+    <h3 style="margin-top: 0em;">Browser SHA256 Demo</h3>
+
+    <p style="margin-top: 1em; margin-bottom: 0;">Enter Hexidecimal Input:</p>
+
+    </select>&nbsp;<input id="input" onkeyup="countbits()" autocomplete="off" style="margin-top: 1em; margin-bottom: 0.5em; font-family: monospace; width: 40em;" value="00000000000000000000000000000000">
+    <br>
+    <button id="button" onclick="start()">Compute</button>
+    <br>
+    <!-- <div id="progress" style="font-family: sans-serif;">X</div> -->
+    <div id="results" style="font-family: sans-serif;"></div>
+  </body>
+  <script type="text/javascript">
+    const countbits = function () {
+      if ($('#results').text().substr(0, 8) === 'Entered ') {
+        $('#results').text('Entered ' + (
+          (($('#base').val() === 'hex')? 4 : 1) * $('#input').val().length
+        ) + ' bits');
+      }
+    };
+    const progress = function (start, total) {
+      $('#progress').text('\n\n' + start + '/' + total);
+    };
+    const callback = function (results) {
+      results = jigg.bin2hex(results);
+      results = results.split('').join('');
+      $('#results').text('Hexidecimal Output: ' + results);
+    };
+    const start = function () {
+      var input = $('#input').val();
+      const circuitURL = 'circuits/sha256.txt';
+
+      const base = $('#base').val();
+      if (base === 'hex') {
+        input = jigg.hex2bin(input);
+      }
+      input = input.split('');
+      if (circuitURL === "circuits/aes128.txt") {  // temporarily adjust circuit
+        input = input.reverse();
+      }
+      input = input.map(JSON.parse);
+
+      // run evaluator
+      var evaluator = new jigg.Evaluator(circuitURL, input, callback, progress, 1000);
+      evaluator.start();
+    };
+  </script>
+</html>
