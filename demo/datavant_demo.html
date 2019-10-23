@@ -8,7 +8,7 @@
   </head>
   <body style="font-family: sans-serif; margin: 2em;">
     <h1 style="margin-bottom: 0.25em;">Garbled Circuits in JavaScript</h1>
-    <h3 style="margin-top: 0em;">Browser SHA256 Demo</h3>
+    <h3 style="margin-top: 0em;">Browser AES128 Demo</h3>
     </select>Enter Hexidecimal Input: <input id="input" onkeyup="countbits()" autocomplete="off" style="margin-top: 1em; margin-bottom: 0.5em; font-family: monospace; width: 40em;" value="00000000000000000000000000000000">
     <br>
     <button id="button" onclick="start()">Compute</button>
@@ -37,10 +37,10 @@
       input = jigg.hex2bin(input);
       input = input.split('');
 
-      const circuitURL = 'circuits/sha256.txt';
-      // if (circuitURL === "circuits/aes128.txt") {  // temporarily adjust circuit
-      //   input = input.reverse();
-      // }
+      const circuitURL = 'circuits/aes128.txt';
+      if (circuitURL === "circuits/aes128.txt") {  // temporarily adjust circuit
+        input = input.reverse();
+      }
       input = input.map(JSON.parse);
 
       // run evaluator
