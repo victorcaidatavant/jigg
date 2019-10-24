@@ -5,16 +5,14 @@ var io = require('socket.io')(http, {
   pingTimeout: 25000,
   pingInterval: 50000
 });
-var sodium = require('libsodium-wrappers');
+global.sodium = require('libsodium-wrappers');
+global.fetch = require('node-fetch');
+const { Garbler, bin2hex, hex2bin } = require('./src/jigg.js');  
 
 app.use('/dist', express.static(__dirname + '/dist/'));
 app.use('/circuits', express.static(__dirname + '/circuits/'));
 app.get('/datavant', (request, response) => response.sendFile(__dirname + '/demo/datavant_demo.html'));
 app.post('/garbler_aes128', function (req, res) {
-  global.sodium = require('libsodium-wrappers');
-  global.fetch = require('node-fetch');
-  const { Garbler, bin2hex, hex2bin } = require('./src/jigg.js');
-
   var input = "00000000000000000000000000000000";
   input = hex2bin(input);
   input = input.split('').reverse().map(JSON.parse);
@@ -29,6 +27,27 @@ app.post('/garbler_aes128', function (req, res) {
   };
 
   const circuitURL = 'circuits/aes128.txt';
+  var garbler = new Garbler(circuitURL, input, callback, progress, 0, 0);
+  garbler.start();
+
+  res.send('200 OK\n')
+});
+
+app.post('/garbler_sha256', function (req, res) {
+  var input = "00000000000000000000000000000000";
+  input = hex2bin(input);
+  input = input.split('').reverse().map(JSON.parse);
+
+  const progress = function (start, total) {
+    console.log('Progress', start, '/', total);
+  };
+
+  const callback = function (results) {
+    results = bin2hex(results);
+    console.log('Results: ' + results);
+  };
+
+  const circuitURL = 'circuits/sha256.txt';
   var garbler = new Garbler(circuitURL, input, callback, progress, 0, 0);
   garbler.start();
 
