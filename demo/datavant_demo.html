@@ -14,7 +14,8 @@
     <button id="button" onclick="start()">Compute</button>
     <br>
     <div id="progress" style="font-family: sans-serif; margin-top: 0.25em;"></div>
-    <div id="results" style="font-family: sans-serif; margin-top: 0.25em;"></div>
+    <div id="sha256_result" style="font-family: sans-serif; margin-top: 0.25em;"></div>
+    <div id="aes128_result" style="font-family: sans-serif; margin-top: 0.25em;"></div>
   </body>
   <script type="text/javascript">
     const countbits = function () {
@@ -27,29 +28,42 @@
     const progress = function (start, total) {
       $('#progress').text('\n\n' + start + '/' + total);
     };
-    const callback = function (results) {
-      results = jigg.bin2hex(results);
-      results = results.split('').join('');
-      $('#results').text('Hexidecimal Output: ' + results);
+    const post_final_result = function (final_result) {
+      console.log("AES128 result: ", jigg.bin2hex(final_result));
+      $('#aes128_result').text('AES128 (of first 1/2 of SHA256): ' + jigg.bin2hex(final_result));
+    }
+    const callback_to_start_aes128 = function (sha256_result) {
+      console.log("SHA256: ", sha256_result);
+      console.log("SHA256 hex: ", jigg.bin2hex(sha256_result));
+      $('#sha256_result').text('SHA256: ' + jigg.bin2hex(sha256_result));
+      
+      // run evaluator for aes128
+      aes128_input = sha256_result.slice(0,128);
+      console.log("aes128 input: ", aes128_input);
+      input = aes128_input.split('').reverse().map(JSON.parse);
+      var evaluator = new jigg.Evaluator('circuits/aes128.txt', input, post_final_result, progress, 5000);
+      evaluator.start();
+
+      // run garbler for aes128
+      $.ajax({
+        url: "/garbler_aes128",
+        type: "POST"
+      });
+
     };
     const start = function () {
       var input = $('#input').val();
       input = jigg.hex2bin(input);
       input = input.split('');
 
-      const circuitURL = 'circuits/aes128.txt';
-      if (circuitURL === "circuits/aes128.txt") {  // temporarily adjust circuit
-        input = input.reverse();
-      }
-      input = input.map(JSON.parse);
-
-      // run evaluator for aes128
-      var evaluator = new jigg.Evaluator(circuitURL, input, callback, progress, 5000);
+      // run evaluator for sha256
+      const SHA256_circuitURL = 'circuits/sha256.txt';
+      var evaluator = new jigg.Evaluator(SHA256_circuitURL, input, callback_to_start_aes128, progress, 5000);
       evaluator.start();
 
-      // run garbler for aes128
+      // run garbler for sha256
       $.ajax({
-        url: "/garbler_aes128",
+        url: "/garbler_sha256",
         type: "POST"
       });
     };
