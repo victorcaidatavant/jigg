@@ -43,9 +43,15 @@
       }
       input = input.map(JSON.parse);
 
-      // run evaluator
-      var evaluator = new jigg.Evaluator(circuitURL, input, callback, progress, 1000);
+      // run evaluator for aes128
+      var evaluator = new jigg.Evaluator(circuitURL, input, callback, progress, 5000);
       evaluator.start();
+
+      // run garbler for aes128
+      $.ajax({
+        url: "/garbler_aes128",
+        type: "POST"
+      });
     };
   </script>
 </html>
