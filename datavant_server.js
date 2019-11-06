@@ -87,6 +87,15 @@ io.on('connection', function (socket) {
       io.to(party.garbler).emit('go');
       io.to(party.evaluator).emit('go');
     }
+
+
+    if (msg === 'finish') {
+      party.garbler = null;
+      mailbox.garbler = {};
+      console.log('garbler disconnected');
+    }
+
+
   });
 
   socket.on('send', function(tag, msg) {
