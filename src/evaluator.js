@@ -56,16 +56,23 @@ Evaluator.prototype.init = function () {
   // All required message promises to evaluate
   var messages = [socket.get('gates')];  // Promise to the garbled gates
 
+  // binary vector indicating which bits are inputs by Evaluator
+  const inputIndicator = new Array(256).fill(0).concat(new Array(256).fill(1));
+
   // Promises to each of the garbler's input labels
-  for (var i = 0; i < this.circuit.input.length / 2; i++) {
-    this.log('listen for Wire', this.circuit.input[i]);
-    messages.push(socket.get('Wire' + this.circuit.input[i]));
+  for (var i = 0; i < this.circuit.input.length; i++) {
+    if (inputIndicator[i] === 0) {
+      this.log('listen for Wire', this.circuit.input[i]);
+      messages.push(socket.get('Wire' + this.circuit.input[i]));
+    }
   }
 
   // Promises to each of the evaluator's input labels
-  for (i = this.circuit.input.length / 2; i < this.circuit.input.length; i++) {
-    this.log('obliviousT ask for wire', this.circuit.input[i], 'with value', input[this.circuit.input[i]]);
-    messages.push(OT.receive(input[this.circuit.input[i]]));
+  for (i = 0; i < this.circuit.input.length; i++) {
+    if (inputIndicator[i] === 1) {
+      this.log('obliviousT ask for wire', this.circuit.input[i], 'with value', input[this.circuit.input[i]]);
+      messages.push(OT.receive(input[this.circuit.input[i]]));
+    }
   }
 
   // Wait until all messages are received

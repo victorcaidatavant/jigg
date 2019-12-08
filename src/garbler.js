@@ -57,18 +57,25 @@ Garbler.prototype.init = function () {
   // Generate labels and save it in this.wire
   this.generate_labels();
 
+  // binary vector indicating which bits are inputs by Garbler
+  const inputIndicator = new Array(256).fill(1).concat(new Array(256).fill(0));
+
   // Give the evaluator the first half of the input labels
-  for (var i = 0; i < this.circuit.input.length/2; i++) {
-    var j = this.circuit.input[i];
-    this.log('give Wire' + j, i, this.circuit.input, inputs[j], this.Wire[j][1], this.Wire[j][0], inputs[j] ? this.Wire[j][1] : this.Wire[j][0]);
-    socket.give('Wire'+j, inputs[j] ? this.Wire[j][1] : this.Wire[j][0]);
+  for (var i = 0; i < this.circuit.input.length; i++) {
+    if (inputIndicator[i] === 1){
+      var j = this.circuit.input[i];
+      this.log('give Wire' + j, i, this.circuit.input, inputs[j], this.Wire[j][1], this.Wire[j][0], inputs[j] ? this.Wire[j][1] : this.Wire[j][0]);
+      socket.give('Wire' + j, inputs[j] ? this.Wire[j][1] : this.Wire[j][0]);
+    }
   }
 
   // Use oblivious transfer for the second half of the input labels
-  for (i = this.circuit.input.length/2; i < this.circuit.input.length; i++) {
-    j = this.circuit.input[i];
-    this.log('transfer for Wire' + j);
-    OT.send(this.Wire[j][0], this.Wire[j][1]);
+  for (i = 0; i < this.circuit.input.length; i++) {
+    if (inputIndicator[i] === 0) {
+      j = this.circuit.input[i];
+      this.log('transfer for Wire' + j);
+      OT.send(this.Wire[j][0], this.Wire[j][1]);
+    }
   }
 
   this.garble(0);
