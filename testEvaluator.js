@@ -7,18 +7,11 @@ const { Evaluator, bin2hex } = require('./src/jigg.js');
 // application code
 const circuitURL = 'circuits/sha256.txt';
 
-var input = []
-for (let i = 0; i < 256-64; i++) {
-    input[i] = 0;
-}
-
-var array56 = []
-for (let i = 0; i<56; i++) {array56[i]=0};
-const end_padding_block = array56.concat([1,1,1,1,0,0,0,0])
-
-input = input.concat(end_padding_block)
-
-console.log('input: ', input)
+// setup bits 256-511 (0-indexed) for SHA256
+// note: in SHA256 padding, the last 64 bits are used to indicate number of bits in input data to be hashed
+const inputPart1 = new Array(248).fill(0);
+const inputPart2 = [1, 1, 1, 1, 0, 0, 0, 0];
+input = inputPart1.concat(inputPart2);
 
 const progress = function (start, total) {
     console.log('Progress', start, '/', total);

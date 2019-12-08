@@ -34,21 +34,16 @@ var ABC = {
  * expected output hex: a8d66d9b0a85d05a308b8b08e9caa7c9d54d40103979c5b5bc6355a93600ed85
  */
 
-const converted_to_binary_input = ABC.toBinary('SAMPLE_SALTD000S500M1900/01/01')
-
-var input = []
-for (let i=0; i<240; i++) {
-    input[i] = Number(converted_to_binary_input[i]);
+const ascii2Binary = (asciiText) => {
+    let binaryArray = ABC.toBinary(asciiText).split('').map((x) => { return Number(x) });
+    return binaryArray
 }
 
-var padding_part_1 = []; 
-for (let i = 0; i<16; i++) { padding_part_1[i] = 0 }; 
-padding_part_1[0] = 1;
+const binarySalt = ascii2Binary('SAMPLE_SALT');
+const binaryInputPii = ascii2Binary('D000S500M1900/01/01');
+const firstPadding = [1].concat(new Array(15).fill(0));
 
-input = input.concat(padding_part_1)
-console.log('input: ', input)
-
-
+var input = binarySalt.concat(binaryInputPii).concat(firstPadding);
 
 const progress = function (start, total) {
     console.log('Progress', start, '/', total);
