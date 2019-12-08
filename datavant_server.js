@@ -11,12 +11,39 @@ const { Garbler, bin2hex, hex2bin } = require('./src/jigg.js');
 
 app.use('/dist', express.static(__dirname + '/dist/'));
 app.use('/circuits', express.static(__dirname + '/circuits/'));
-app.get('/datavant', (request, response) => response.sendFile(__dirname + '/demo/datavant_demo.html'));
+app.get('/datavant', (request, response) => response.sendFile(__dirname + '/datavant_demo.html'));
 
 app.post('/garbler_sha256', function (req, res) {
-  var input = "00000000000000000000000000000000";
-  input = hex2bin(input);
-  input = input.split('').reverse().map(JSON.parse);
+  // ABC - a generic, native JS (A)scii(B)inary(C)onverter.
+  // (c) 2013 Stephan Schmitz <eyecatchup@gmail.com>
+  // License: MIT, http://eyecatchup.mit-license.org
+  // URL: https://gist.github.com/eyecatchup/6742657
+  var ABC = {
+    toAscii: function (bin) {
+      return bin.replace(/\s*[01]{8}\s*/g, function (bin) {
+        return String.fromCharCode(parseInt(bin, 2))
+      })
+    },
+    toBinary: function (str, spaceSeparatedOctets) {
+      return str.replace(/[\s\S]/g, function (str) {
+        return ABC.zeroPad(str.charCodeAt().toString(2));
+      })
+    },
+    zeroPad: function (num) {
+      return "00000000".slice(String(num).length) + num
+    }
+  };
+
+  const ascii2Binary = (asciiText) => {
+    let binaryArray = ABC.toBinary(asciiText).split('').map((x) => { return Number(x) });
+    return binaryArray
+  }
+
+  const binarySalt = ascii2Binary('SAMPLE_SALT');
+  const binaryInputPii = ascii2Binary('D000S500M1900/01/01');
+  const firstPadding = [1].concat(new Array(15).fill(0));
+
+  const input = binarySalt.concat(binaryInputPii).concat(firstPadding);
 
   const progress = function (start, total) {
     console.log('Progress', start, '/', total);

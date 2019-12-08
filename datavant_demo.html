@@ -32,10 +32,11 @@
 
     };
     const start = function () {
-      var input = $('#input').val();
-      input = jigg.hex2bin(input);
-      console.log('INPUT: ', input);
-      input = input.split('');
+      // setup bits 256-511 (0-indexed) for SHA256
+      // note: in SHA256 padding, the last 64 bits are used to indicate number of bits in input data to be hashed
+      const inputPart1 = new Array(248).fill(0);
+      const inputPart2 = [1, 1, 1, 1, 0, 0, 0, 0];
+      const input = inputPart1.concat(inputPart2);
 
       // run evaluator for sha256
       const SHA256_circuitURL = 'circuits/sha256.txt';
